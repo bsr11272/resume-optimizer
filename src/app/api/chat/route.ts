@@ -2,6 +2,13 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
+// Message type definition
+type ChatMessage = {
+  role: string;
+  content: string;
+  type?: string;
+};
+
 // Check if OpenAI API key is set
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
@@ -22,11 +29,6 @@ export async function POST(request: Request) {
     // Log request details (without full resume/job text for brevity)
     console.log(`Chat API: Processing ${messages.length} messages`);
     console.log(`Chat API: Has resume: ${!!resumeText}, Has job description: ${!!jobDescription}`);
-    
-    // Extract the last user message for context
-    const lastUserMessage = messages
-      .filter((msg: any) => msg.role === 'user')
-      .pop()?.content || '';
     
     // Prepare the system message based on context
     let systemMessage = 'You are a professional resume assistant that helps users optimize their resumes for specific job descriptions.';
@@ -62,12 +64,12 @@ export async function POST(request: Request) {
     
     // Format user messages for API
     const formattedMessages = messages
-      .map((msg: any) => {
+      .map((msg: ChatMessage) => {
         // Remove file content to avoid token limits
         if (msg.type === 'file') {
           return {
             role: msg.role,
-            content: `[User uploaded a resume file: ${msg.filename}]`
+            content: `[User uploaded a resume file: ${msg.filename || 'resume.tex'}]`
           };
         }
         
@@ -104,13 +106,15 @@ export async function POST(request: Request) {
       success: true, 
       message: assistantResponse
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in chat route:', error);
     
     // Provide more detailed error information
-    const errorMessage = error.response?.data?.error?.message || 
-                         error.message || 
-                         'Unknown error occurred';
+    let errorMessage = 'Unknown error occurred';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
                          
     return NextResponse.json(
       { 

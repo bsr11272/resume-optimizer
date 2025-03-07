@@ -151,7 +151,7 @@ export default function Home() {
       // Save the original resume to Firebase Storage
       const storageRef = ref(storage, `resumes/${Date.now()}-resume.tex`);
       await uploadString(storageRef, resumeContent);
-      const resumeUrl = await getDownloadURL(storageRef);
+      // const resumeUrl = await getDownloadURL(storageRef);
 
       // Call the optimization API
       const response = await fetch('/api/optimize', {

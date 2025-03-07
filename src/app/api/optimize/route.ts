@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     console.log('Optimize API: Calling OpenAI for resume optimization');
     
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4",
       messages: [
         {
           role: 'system',
@@ -72,13 +72,15 @@ Please optimize my resume to better match this job description. Return only the 
       success: true, 
       optimizedResume 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in optimize route:', error);
     
     // Provide more detailed error information
-    const errorMessage = error.response?.data?.error?.message || 
-                         error.message || 
-                         'Unknown error occurred';
+    let errorMessage = 'Unknown error occurred';
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
                          
     return NextResponse.json(
       { 
