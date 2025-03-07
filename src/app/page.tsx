@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { storage } from '@/lib/firebase';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { ref, uploadString } from 'firebase/storage';
 
 type Message = {
   role: 'user' | 'assistant';
