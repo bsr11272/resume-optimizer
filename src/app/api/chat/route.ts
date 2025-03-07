@@ -7,6 +7,8 @@ type ChatMessage = {
   role: string;
   content: string;
   type?: string;
+  filename?: string; // Add this property
+  fileContent?: string; // Add this too for completeness
 };
 
 // Check if OpenAI API key is set
